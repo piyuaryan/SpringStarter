@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -51,6 +52,11 @@ public class UiApplication {
      * <p/>
      * This is a standard Spring Boot application with Spring Security customization,
      * just allowing anonymous access to the static (HTML) resources (the CSS and JS resources are already accessible by default)
+     * <p/>
+     * CSRF: Angular has built in support for CSRF (which it calls "XSRF") based on cookies.
+     * So on the server we need a custom filter that will send the cookie.
+     * Angular wants the cookie name to be "XSRF-TOKEN" and Spring Security provides it as a request attribute by default,
+     * so we just need to transfer the value from a request attribute to a cookie.
      */
     @Configuration
     @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
@@ -62,7 +68,10 @@ public class UiApplication {
                     .and()
                     .authorizeRequests()
                     .antMatchers("/index.html", "/home.html", "/login.html", "/").permitAll()
-                    .anyRequest().authenticated();
+                    .anyRequest().authenticated()
+                    .and()
+                    .csrf()
+                    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
         }
     }
 }
