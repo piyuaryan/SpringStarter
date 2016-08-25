@@ -1,0 +1,7 @@
+.idea
+/target
+*.iml
+
+DB Setup.sql
+PasswordEncodeGenerator
+src/main/java/other/
